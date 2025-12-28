@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.1",
+    "@ai-sdk/react": "^3.0.3",
     "@mantine/core": "^8.3.10",
     "@mantine/hooks": "^8.3.10",
     "@tabler/icons-react": "^3.36.0",
+    "ai": "^6.0.3",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
