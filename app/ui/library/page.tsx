@@ -111,7 +111,7 @@ export default function LibraryPage() {
           {filteredDocuments.map(doc => (
             <Link
               key={doc.id}
-              href={`/ui/library/${doc.id}`}
+              href={`/ui/document/${doc.id}`}
               className="group"
             >
               <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 h-full flex flex-col transform hover:-translate-y-1">

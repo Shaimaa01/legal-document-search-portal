@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
+type LibraryDocument = {
+  title: string;
+  content: string;
+  similarity: number | null;
+};
+
 async function getEmbedding(text: string): Promise<number[]> {
   const response = await fetch(
     "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction",
@@ -24,7 +30,7 @@ async function getEmbedding(text: string): Promise<number[]> {
 
 async function getAIAnswer(
   question: string,
-  documents: any[]
+  documents: LibraryDocument[]
 ): Promise<string> {
   // Build context from documents
   const context = documents
@@ -121,10 +127,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const documents = allDocuments || [];
+    const documents = (allDocuments || []) as LibraryDocument[];
     const MIN_SIMILARITY = 0.3;
     const relevantDocs = documents
-      .filter((doc: any) => doc.similarity >= MIN_SIMILARITY)
+      .filter((doc) => (doc.similarity ?? 0) >= MIN_SIMILARITY)
       .slice(0, 5);
 
     console.log(`📊 Found ${relevantDocs.length} relevant documents`);
@@ -139,7 +145,7 @@ export async function POST(req: Request) {
 
     if (relevantDocs.length > 0) {
       console.log("📈 Top results:");
-      relevantDocs.forEach((doc: any, i: number) => {
+      relevantDocs.forEach((doc, i) => {
         console.log(
           `   ${i + 1}. ${doc.title} - Score: ${
             doc.similarity?.toFixed(4) || "N/A"
