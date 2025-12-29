@@ -19,7 +19,12 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { IconAlertCircle, IconBook2, IconFileSearch, IconRobot } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconBook2,
+  IconFileSearch,
+  IconRobot,
+} from "@tabler/icons-react";
 
 interface Document {
   id: number;
@@ -30,12 +35,22 @@ interface Document {
   similarity?: number;
 }
 
+const SEARCH_KEYWORDS = [
+  "NDA",
+  "privacy policy",
+  "GDPR",
+  "terms of service",
+  "corporate bylaws",
+  "shareholders",
+];
+
 export default function LegalSearch() {
   const [input, setInput] = useState("");
   const [documents, setDocuments] = useState<Document[]>([]);
   const [aiAnswer, setAiAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +58,6 @@ export default function LegalSearch() {
 
     if (!trimmedInput) return;
 
-    // Require at least 3 characters for a meaningful search
     if (trimmedInput.length < 3) {
       setError("Please enter at least 3 characters to search");
       return;
@@ -54,9 +68,10 @@ export default function LegalSearch() {
     setDocuments([]);
     setAiAnswer("");
     setError(null);
+    setHasSearched(false);
 
     try {
-      console.log("Fetching from /api/chat...");
+      console.log("Fetching from /api/search...");
       const response = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +88,7 @@ export default function LegalSearch() {
 
       setDocuments(data.documents || []);
       setAiAnswer(data.aiAnswer || "");
+      setHasSearched(true);
       console.log("Documents set:", data.documents?.length || 0);
       console.log("AI Answer:", data.aiAnswer);
     } catch (error) {
@@ -81,6 +97,10 @@ export default function LegalSearch() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleKeywordClick = (keyword: string) => {
+    setInput(keyword);
   };
 
   return (
@@ -93,8 +113,8 @@ export default function LegalSearch() {
               <Stack gap={4}>
                 <Title order={2}>Legal document search</Title>
                 <Text size="sm" c="dimmed">
-                  Ask natural language questions to find the most relevant documents
-                  in your library.
+                  Ask natural language questions to find the most relevant
+                  documents in your library.
                 </Text>
               </Stack>
               <Button
@@ -125,7 +145,9 @@ export default function LegalSearch() {
                 radius="lg"
                 p="md"
                 withBorder
-                style={{ background: "linear-gradient(135deg, #0b1020, #111827)" }}
+                style={{
+                  background: "linear-gradient(135deg, #0b1020, #111827)",
+                }}
               >
                 <Group align="flex-start" gap="md">
                   <Box>
@@ -150,9 +172,7 @@ export default function LegalSearch() {
               <Stack gap="sm">
                 {documents.length > 0 && (
                   <Group justify="space-between">
-                    <Text fw={600}>
-                      Related documents ({documents.length})
-                    </Text>
+                    <Text fw={600}>Related documents ({documents.length})</Text>
                     <Text size="xs" c="dimmed">
                       Ranked by semantic relevance
                     </Text>
@@ -198,10 +218,9 @@ export default function LegalSearch() {
                 ))}
 
                 {!loading &&
+                  hasSearched &&
                   documents.length === 0 &&
-                  input &&
-                  !error &&
-                  !aiAnswer && (
+                  !error && (
                     <Stack align="center" py="xl" gap="xs">
                       <IconFileSearch size={28} />
                       <Text size="sm" c="dimmed">
@@ -225,32 +244,53 @@ export default function LegalSearch() {
 
             {/* Query input */}
             <form onSubmit={handleSubmit}>
-              <Group align="flex-end" gap="sm">
-                <TextInput
-                  style={{ flex: 1 }}
-                  value={input}
-                  placeholder="Search documents..."
-                  onChange={(e) => setInput(e.target.value)}
-                  disabled={loading}
-                  leftSection={<IconFileSearch size={16} />}
-                  radius="md"
-                />
-                <Button
-                  type="submit"
-                  radius="md"
-                  leftSection={<IconFileSearch size={16} />}
-                  loading={loading}
-                >
-                  Search
-                </Button>
-              </Group>
-              <Text size="xs" c="dimmed" mt={4}>
-                Need inspiration? Browse the{" "}
-                <Anchor component={Link} href="/ui/library" inherit>
-                  document library
-                </Anchor>{" "}
-                to see what&apos;s available.
-              </Text>
+              <Stack gap="xs">
+                <Group align="flex-end" gap="sm">
+                  <TextInput
+                    style={{ flex: 1 }}
+                    value={input}
+                    placeholder="Search documents..."
+                    onChange={(e) => setInput(e.target.value)}
+                    disabled={loading}
+                    leftSection={<IconFileSearch size={16} />}
+                    radius="md"
+                  />
+                  <Button
+                    type="submit"
+                    radius="md"
+                    leftSection={<IconFileSearch size={16} />}
+                    loading={loading}
+                  >
+                    Search
+                  </Button>
+                </Group>
+
+                {/* Keywords */}
+                <Group gap="xs">
+                  <Text size="xs" c="dimmed">
+                    Try:
+                  </Text>
+                  {SEARCH_KEYWORDS.map((keyword) => (
+                    <Badge
+                      key={keyword}
+                      size="sm"
+                      variant="light"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleKeywordClick(keyword)}
+                    >
+                      {keyword}
+                    </Badge>
+                  ))}
+                </Group>
+
+                <Text size="xs" c="dimmed">
+                  Need inspiration? Browse the{" "}
+                  <Anchor component={Link} href="/ui/library" inherit>
+                    document library
+                  </Anchor>{" "}
+                  to see what&apos;s available.
+                </Text>
+              </Stack>
             </form>
           </Stack>
         </Paper>
