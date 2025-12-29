@@ -38,7 +38,7 @@ Get an AI-generated answer plus relevant source documents with similarity scores
        ▼
 ┌─────────────────────────────────┐
 │  HuggingFace Embeddings API     │
-│  (all-MiniLM-L6-v2)            │
+│  (all-MiniLM-L6-v2)             │
 └──────┬──────────────────────────┘
        │
        ▼
@@ -49,7 +49,7 @@ Get an AI-generated answer plus relevant source documents with similarity scores
        │
        ▼
 ┌─────────────────────────────────┐
-│  Groq API (Llama 3.3 70B)      │
+│  Groq API (Llama 3.3 70B)       │
 │  Generates brief answer         │
 └──────┬──────────────────────────┘
        │
@@ -73,8 +73,8 @@ Get an AI-generated answer plus relevant source documents with similarity scores
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/legal-search.git
-   cd legal-search
+   git clone https://github.com/Shaimaa01/legal-document-search-portal.git
+   cd legal-document-search-portal
    ```
 
 2. **Install dependencies**
@@ -150,7 +150,7 @@ Get an AI-generated answer plus relevant source documents with similarity scores
 
 5. **Seed the database with sample documents**
 
-   Visit `/fix-embeddings` after starting the dev server to generate embeddings for your documents.
+   Visit `/ui/fix-embeddings` after starting the dev server to generate embeddings for your documents.
 
 6. **Run the development server**
 
@@ -168,21 +168,31 @@ Get an AI-generated answer plus relevant source documents with similarity scores
 ```
 ├── app/
 │   ├── api/
-│   │   ├── chat/route.ts              # Search + AI answer endpoint
+│   │   ├── search/
+│   │   │   └── route.ts               # Search + AI answer endpoint
 │   │   ├── library/
-│   │   │   ├── route.ts               # Get all documents
-│   │   │   └── [id]/route.ts          # Get single document
-│   │   └── fix-embeddings/route.ts    # Generate embeddings
-│   ├── library/
-│   │   ├── page.tsx                   # Document library grid
-│   │   └── [id]/page.tsx              # Document detail page
+│   │   │   └── route.ts               # Get all documents
+│   │   ├── document/
+│   │   │   └── [id]/
+│   │   │       └── route.ts           # Get single document by ID
+│   │   └── fix-embeddings/
+│   │       └── route.ts               # Generate embeddings utility
 │   ├── ui/
-│   │   ├── search/page.tsx            # Search interface
-│   │   └── library/page.tsx           # Library interface
-│   └── page.tsx                       # Landing page
+│   │   ├── search/
+│   │   │   └── page.tsx               # Search interface with AI answers
+│   │   ├── library/
+│   │   │   └── page.tsx               # Document library grid with filters
+│   │   ├── document/
+│   │   │   └── [id]/
+│   │   │       └── page.tsx           # Document detail viewer
+│   │   └── fix-embeddings/
+│   │       └── page.tsx               # Embeddings fix utility page
+│   ├── layout.tsx                     # Root layout with Mantine provider
+│   ├── page.tsx                       # Landing/homepage
+│   └── globals.css                    # Global styles
 ├── lib/
-│   └── supabase.ts                    # Supabase client
-└── public/
+│   └── supabase.ts                    # Supabase client configuration
+└── public/                            # Static assets
 ```
 
 ## 🛠️ Tech Stack
@@ -219,15 +229,15 @@ Get an AI-generated answer plus relevant source documents with similarity scores
 
 ### Adjusting Search Sensitivity
 
-In `app/api/chat/route.ts`:
+In `app/api/search/route.ts`:
 
 ```typescript
-const MIN_SIMILARITY = 0.15; // Lower = more results (0.10-0.25 recommended)
+const MIN_SIMILARITY = 0.3; // Lower = more results (0.15-0.35 recommended)
 ```
 
 ### Customizing AI Responses
 
-In `app/api/chat/route.ts`:
+In `app/api/search/route.ts`:
 
 ```typescript
 const systemPrompt = `Your custom instructions here...`;
@@ -275,16 +285,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - [HuggingFace](https://huggingface.co/) for embeddings API
 - [Groq](https://groq.com/) for fast AI inference
 - [Supabase](https://supabase.com/) for vector database
-- [Next.js](https://nextjs.org/) for the amazing framework
+- [Next.js](https://nextjs.org/) for the framework
+- [Mantine](https://mantine.dev/) for the UI component library used to style the app
+- [Claude AI](https://claude.ai/) for backend code development and architecture
+- [Cursor](https://www.cursor.com/) and cloud-based AI coding assistants for helping refactor and improve the UI
+- Google AI models and tooling for researching and evaluating the best-fit technologies for this project
 
 ---
 
