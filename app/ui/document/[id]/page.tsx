@@ -1,8 +1,28 @@
 // Save as: app/library/[id]/page.tsx
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Container,
+  Group,
+  Loader,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import {
+  IconArrowLeft,
+  IconCalendar,
+  IconCopy,
+  IconPrinter,
+  IconUser,
+} from "@tabler/icons-react";
 
 interface Document {
   id: number;
@@ -16,7 +36,6 @@ interface Document {
 
 export default function LibraryDocumentPage() {
   const params = useParams();
-  const router = useRouter();
   const [document, setDocument] = useState<Document | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +46,7 @@ export default function LibraryDocumentPage() {
       try {
         const id = Array.isArray(params.id) ? params.id[0] : params.id;
         const response = await fetch(`/api/document/${id}`);
-        
+
         if (!response.ok) {
           throw new Error("Document not found");
         }
@@ -35,7 +54,9 @@ export default function LibraryDocumentPage() {
         const data = await response.json();
         setDocument(data.document);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load document");
+        setError(
+          err instanceof Error ? err.message : "Failed to load document"
+        );
       } finally {
         setLoading(false);
       }
@@ -54,132 +75,141 @@ export default function LibraryDocumentPage() {
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      Employment: "bg-blue-100 text-blue-800 border-blue-300",
-      Privacy: "bg-purple-100 text-purple-800 border-purple-300",
-      Commercial: "bg-green-100 text-green-800 border-green-300",
-      "Real Estate": "bg-orange-100 text-orange-800 border-orange-300",
-      Corporate: "bg-red-100 text-red-800 border-red-300",
-      "Intellectual Property": "bg-pink-100 text-pink-800 border-pink-300",
-    };
-    return colors[category] || "bg-gray-100 text-gray-800 border-gray-300";
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading document...</p>
-        </div>
-      </div>
+      <Box component="main" py="xl">
+        <Container size="lg">
+          <Stack align="center" justify="center" mih="60vh" gap="xs">
+            <Loader />
+            <Text c="dimmed">Loading document...</Text>
+          </Stack>
+        </Container>
+      </Box>
     );
   }
 
   if (error || !document) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md">
-          <div className="text-center">
-            <div className="text-6xl mb-4">📄</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Not Found</h1>
-            <p className="text-gray-600 mb-6">{error || "The document you're looking for doesn't exist."}</p>
-            <Link
-              href="/library"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              ← Back to Library
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Box component="main" py="xl">
+        <Container size="sm">
+          <Paper radius="lg" p="xl" withBorder>
+            <Stack gap="md" align="center">
+              <Text size="xl">📄</Text>
+              <Title order={3}>Document not found</Title>
+              <Text size="sm" c="dimmed" ta="center">
+                {error || "The document you are looking for does not exist."}
+              </Text>
+              <Button
+                component={Link}
+                href="/ui/library"
+                variant="light"
+                leftSection={<IconArrowLeft size={16} />}
+              >
+                Back to library
+              </Button>
+            </Stack>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/library"
-              className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
+    <Box component="main" py="xl">
+      <Container size="lg">
+        <Stack gap="lg">
+          {/* Header bar */}
+          <Group justify="space-between" align="center">
+            <Button
+              component={Link}
+              href="/ui/library"
+              variant="subtle"
+              leftSection={<IconArrowLeft size={16} />}
+              radius="xl"
             >
-              <span>←</span> Back to Library
-            </Link>
-            <div className="flex gap-3">
-              <button
+              Back to library
+            </Button>
+
+            <Group gap="sm">
+              <Button
+                variant="default"
+                leftSection={<IconCopy size={16} />}
                 onClick={handleCopy}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors flex items-center gap-2"
               >
-                {copied ? "✓ Copied!" : "📋 Copy"}
-              </button>
-              <button
+                {copied ? "Copied" : "Copy"}
+              </Button>
+              <Button
+                variant="default"
+                leftSection={<IconPrinter size={16} />}
                 onClick={() => window.print()}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors flex items-center gap-2"
               >
-                🖨️ Print
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+                Print
+              </Button>
+            </Group>
+          </Group>
 
-      {/* Document Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Document Header */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-          <div className="mb-4">
-            <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold border ${getCategoryColor(document.category)}`}>
-              {document.category}
-            </span>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {document.title}
-          </h1>
-          
-          <p className="text-lg text-gray-600 mb-6 italic">
-            {document.summary}
-          </p>
-          
-          <div className="flex flex-wrap gap-6 text-sm text-gray-600 pt-6 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">👤 Author:</span>
-              <span>{document.author}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">📅 Published:</span>
-              <span>{new Date(document.date_published).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
-          </div>
-        </div>
+          {/* Document header */}
+          <Paper radius="lg" p="xl" withBorder shadow="sm">
+            <Stack gap="md">
+              <Badge variant="outline" size="sm">
+                {document.category}
+              </Badge>
 
-        {/* Document Body */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="prose max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-justify">
+              <Title order={1}>{document.title}</Title>
+
+              {document.summary && (
+                <Text size="sm" c="dimmed" fs="italic">
+                  {document.summary}
+                </Text>
+              )}
+
+              <Group gap="lg" mt="sm">
+                <Group gap={6}>
+                  <IconUser size={16} />
+                  <Text size="sm" c="dimmed">
+                    {document.author}
+                  </Text>
+                </Group>
+                <Group gap={6}>
+                  <IconCalendar size={16} />
+                  <Text size="sm" c="dimmed">
+                    {new Date(document.date_published).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </Text>
+                </Group>
+              </Group>
+            </Stack>
+          </Paper>
+
+          {/* Document body */}
+          <Paper radius="lg" p="xl" withBorder>
+            <Text
+              size="sm"
+              style={{ whiteSpace: "pre-wrap", textAlign: "justify" }}
+            >
               {document.content}
-            </div>
-          </div>
-        </div>
+            </Text>
+          </Paper>
 
-        {/* Footer Actions */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/library"
-            className="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            ← Browse More Documents
-          </Link>
-        </div>
-      </div>
-    </div>
+          {/* Footer */}
+          <Group justify="center">
+            <Button
+              component={Link}
+              href="/ui/library"
+              leftSection={<IconArrowLeft size={16} />}
+              radius="xl"
+            >
+              Browse more documents
+            </Button>
+          </Group>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

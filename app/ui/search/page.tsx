@@ -1,5 +1,25 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import {
+  Alert,
+  Anchor,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Divider,
+  Group,
+  Loader,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { IconAlertCircle, IconBook2, IconFileSearch, IconRobot } from "@tabler/icons-react";
 
 interface Document {
   id: number;
@@ -64,102 +84,177 @@ export default function LegalSearch() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 sm:p-10 h-screen flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Legal Document Search</h1>
-        <a
-          href="/library"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-        >
-          📚 Browse Library
-        </a>
-      </div>
-
-      <div className="grow overflow-y-auto space-y-6 pb-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-            <strong>Error:</strong> {error}
-          </div>
-        )}
-
-        {/* AI Answer Section */}
-        {aiAnswer && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-md">
-            <div className="flex items-start gap-3">
-              <div className="text-3xl">🤖</div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg text-white mb-2">
-                  AI Assistant
-                </h3>
-                <p className="text-gray-100 leading-relaxed">{aiAnswer}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {documents.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-3 text-gray-700">
-              📚 Related Documents ({documents.length}):
-            </h3>
-            {documents.map((doc) => (
-              <a
-                key={doc.id}
-                href={`/library/${doc.id}`}
-                className="block border p-4 rounded-lg mb-3 bg-white shadow hover:shadow-lg hover:border-blue-400 transition-all cursor-pointer"
+    <Box component="main" py="xl">
+      <Container size="lg">
+        <Paper radius="lg" p="lg" withBorder shadow="md">
+          <Stack gap="lg" style={{ minHeight: "70vh" }}>
+            {/* Header */}
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={4}>
+                <Title order={2}>Legal document search</Title>
+                <Text size="sm" c="dimmed">
+                  Ask natural language questions to find the most relevant documents
+                  in your library.
+                </Text>
+              </Stack>
+              <Button
+                component={Link}
+                href="/ui/library"
+                leftSection={<IconBook2 size={16} />}
+                variant="light"
+                radius="xl"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-2 text-blue-600 hover:text-blue-800">
-                      {doc.title}
-                    </h4>
-                    {doc.category && (
-                      <span className="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 mb-2">
-                        {doc.category}
-                      </span>
-                    )}
-                    <p className="text-sm text-gray-700 line-clamp-2">
-                      {doc.summary || doc.content}
-                    </p>
-                  </div>
-                  {doc.similarity !== undefined && (
-                    <div className="text-right">
-                      <div className="text-xs text-gray-500 mb-1">Match</div>
-                      <div className="text-lg font-bold text-green-600">
-                        {(doc.similarity * 100).toFixed(0)}%
-                      </div>
-                    </div>
+                Browse library
+              </Button>
+            </Group>
+
+            {/* AI answer */}
+            {error && (
+              <Alert
+                icon={<IconAlertCircle size={18} />}
+                color="red"
+                radius="md"
+                variant="light"
+              >
+                {error}
+              </Alert>
+            )}
+
+            {aiAnswer && (
+              <Paper
+                radius="lg"
+                p="md"
+                withBorder
+                style={{ background: "linear-gradient(135deg, #0b1020, #111827)" }}
+              >
+                <Group align="flex-start" gap="md">
+                  <Box>
+                    <IconRobot size={28} color="#22d3ee" />
+                  </Box>
+                  <Stack gap={4}>
+                    <Group gap="xs">
+                      <Badge size="sm" variant="light" color="cyan">
+                        AI assistant
+                      </Badge>
+                    </Group>
+                    <Text size="sm" c="gray.1">
+                      {aiAnswer}
+                    </Text>
+                  </Stack>
+                </Group>
+              </Paper>
+            )}
+
+            {/* Results */}
+            <ScrollArea.Autosize mah={360} offsetScrollbars>
+              <Stack gap="sm">
+                {documents.length > 0 && (
+                  <Group justify="space-between">
+                    <Text fw={600}>
+                      Related documents ({documents.length})
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Ranked by semantic relevance
+                    </Text>
+                  </Group>
+                )}
+
+                {documents.map((doc) => (
+                  <Card
+                    key={doc.id}
+                    withBorder
+                    radius="md"
+                    component={Link}
+                    href={`/ui/document/${doc.id}`}
+                    shadow="sm"
+                  >
+                    <Group align="flex-start" justify="space-between" gap="md">
+                      <Stack gap={4} flex={1}>
+                        <Group gap="xs">
+                          <Text fw={600}>{doc.title}</Text>
+                          {doc.category && (
+                            <Badge size="xs" variant="outline">
+                              {doc.category}
+                            </Badge>
+                          )}
+                        </Group>
+                        <Text size="sm" c="dimmed" lineClamp={2}>
+                          {doc.summary || doc.content}
+                        </Text>
+                      </Stack>
+
+                      {doc.similarity !== undefined && (
+                        <Stack gap={2} align="flex-end">
+                          <Text size="xs" c="dimmed">
+                            Match
+                          </Text>
+                          <Text fw={700} c="teal">
+                            {(doc.similarity * 100).toFixed(0)}%
+                          </Text>
+                        </Stack>
+                      )}
+                    </Group>
+                  </Card>
+                ))}
+
+                {!loading &&
+                  documents.length === 0 &&
+                  input &&
+                  !error &&
+                  !aiAnswer && (
+                    <Stack align="center" py="xl" gap="xs">
+                      <IconFileSearch size={28} />
+                      <Text size="sm" c="dimmed">
+                        No relevant documents found. Try different search terms.
+                      </Text>
+                    </Stack>
                   )}
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
 
-        {!loading && documents.length === 0 && input && !error && !aiAnswer && (
-          <div className="text-center py-8 text-gray-500">
-            <div className="text-4xl mb-3">🔍</div>
-            <p>No relevant documents found. Try different search terms.</p>
-          </div>
-        )}
+                {loading && (
+                  <Stack align="center" gap="xs" py="md">
+                    <Loader size="sm" />
+                    <Text size="sm" c="dimmed">
+                      Searching...
+                    </Text>
+                  </Stack>
+                )}
+              </Stack>
+            </ScrollArea.Autosize>
 
-        {loading && (
-          <div className="p-4 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            <p className="mt-2">Searching...</p>
-          </div>
-        )}
-      </div>
+            <Divider />
 
-      <form onSubmit={handleSubmit} className="pt-4 border-t">
-        <input
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={input}
-          placeholder="Search documents..."
-          onChange={(e) => setInput(e.target.value)}
-          disabled={loading}
-        />
-      </form>
-    </div>
+            {/* Query input */}
+            <form onSubmit={handleSubmit}>
+              <Group align="flex-end" gap="sm">
+                <TextInput
+                  style={{ flex: 1 }}
+                  value={input}
+                  placeholder="Search documents..."
+                  onChange={(e) => setInput(e.target.value)}
+                  disabled={loading}
+                  leftSection={<IconFileSearch size={16} />}
+                  radius="md"
+                />
+                <Button
+                  type="submit"
+                  radius="md"
+                  leftSection={<IconFileSearch size={16} />}
+                  loading={loading}
+                >
+                  Search
+                </Button>
+              </Group>
+              <Text size="xs" c="dimmed" mt={4}>
+                Need inspiration? Browse the{" "}
+                <Anchor component={Link} href="/ui/library" inherit>
+                  document library
+                </Anchor>{" "}
+                to see what&apos;s available.
+              </Text>
+            </form>
+          </Stack>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
