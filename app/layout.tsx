@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@mantine/core/styles.css";
 import {
@@ -10,8 +9,17 @@ import {
 } from "@mantine/core";
 
 export const metadata: Metadata = {
-  title: "My Mantine app",
-  description: "I have followed setup instructions carefully",
+  title: "Legal Document Search Portal | AI-Powered Legal Search",
+  description:
+    "Intelligent legal document search platform powered by semantic search and AI-generated answers. Search through contracts, policies, and legal documents with natural language queries.",
+  keywords: [
+    "legal documents",
+    "legal search",
+    "AI legal assistant",
+    "semantic search",
+    "document search",
+    "legal library",
+  ],
 };
 
 const theme = createTheme({
